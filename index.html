@@ -9,37 +9,36 @@
         function onSubmit(token) {
             document.getElementById('recaptcha-form').submit();
         }
-        grecaptcha.ready(function() {
-            grecaptcha.execute('6LfeP6kqAAAAAJjyeoWnDBAie6vZjlvjfthO7h_q', {action: 'submit'}).then(function(token) {
-                document.getElementById('recaptcha-token').value = token;
+
+        function executeRecaptcha() {
+            grecaptcha.ready(function() {
+                grecaptcha.execute('6LfeP6kqAAAAAJjyeoWnDBAie6vZjlvjfthO7h_q', {action: 'submit'}).then(function(token) {
+                    validateRecaptcha(token);
+                });
             });
-        });
+        }
+
+        function validateRecaptcha(token) {
+            const secret = '6LfeP6kqAAAAADnwGRYtZtezx6lIKReEXVXXbib3';
+            const response = token;
+
+            fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${response}`, {
+                method: 'POST'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = 'https://glowingjellyfishstudio.github.io/learn.html';
+                } else {
+                    window.location.href = 'https://glowingjellyfishstudio.github.io/index.html';
+                }
+            });
+        }
     </script>
 </head>
 <body>
-    <form id="recaptcha-form" action="?" method="POST">
-        <input type="hidden" id="recaptcha-token" name="g-recaptcha-response">
-        <button type="submit" onclick="onSubmit()">Submit</button>
+    <form id="recaptcha-form" action="javascript:executeRecaptcha()" method="POST">
+        <button type="submit">Submit</button>
     </form>
-
-    <?php
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $recaptcha_secret = '6LfeP6kqAAAAADnwGRYtZtezx6lIKReEXVXXbib3';
-        $recaptcha_response = $_POST['g-recaptcha-response'];
-        
-        $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$recaptcha_secret}&response={$recaptcha_response}");
-        $response_keys = json_decode($response, true);
-        
-        if ($response_keys["success"] != 1) {
-            // reCAPTCHA failed
-            header('Location: https://glowingjellyfishstudio.github.io');
-            exit();
-        } else {
-            // reCAPTCHA passed
-            header('Location: https://glowingjellyfishstudio.github.io/learn.html');
-            exit();
-        }
-    }
-    ?>
 </body>
 </html>
