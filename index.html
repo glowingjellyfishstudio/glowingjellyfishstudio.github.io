@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reCAPTCHA Redirect</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+    <form id="recaptcha-form" action="?" method="POST">
+        <div class="g-recaptcha" data-sitekey="6LfeP6kqAAAAAJjyeoWnDBAie6vZjlvjfthO7h_q"></div>
+        <br/>
+        <button type="submit">Submit</button>
+    </form>
+
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $recaptcha_secret = '6LfeP6kqAAAAADnwGRYtZtezx6lIKReEXVXXbib3';
+        $recaptcha_response = $_POST['g-recaptcha-response'];
+        
+        $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret={$recaptcha_secret}&response={$recaptcha_response}");
+        $response_keys = json_decode($response, true);
+        
+        if (intval($response_keys["success"]) !== 1) {
+            // reCAPTCHA failed
+            header('Location: https://glowingjellyfishstudio.github.io');
+            exit();
+        } else {
+            // reCAPTCHA passed
+            header('Location: https://glowingjellyfishstudio.github.io/learn.html');
+            exit();
+        }
+    }
+    ?>
+</body>
+</html>
