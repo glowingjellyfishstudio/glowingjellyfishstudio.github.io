@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GitHub OAuth Login Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #f6f8fa;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 340px;
+      margin: 10vh auto;
+      padding: 2em;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 1.2em;
+      font-size: 1.5em;
+      color: #222;
+    }
+    .oauth-btn {
+      display: inline-block;
+      background: #24292e;
+      color: #fff;
+      padding: 12px 32px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background 0.18s;
+      text-decoration: none;
+    }
+    .oauth-btn:hover {
+      background: #444d56;
+    }
+    .small {
+      margin-top: 1.5em;
+      color: #888;
+      font-size: 0.96em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Sign in with GitHub</h1>
+    <button class="oauth-btn" id="loginBtn">Login with GitHub</button>
+    <div class="small">
+      You will be redirected to GitHub for authentication.
+    </div>
+  </div>
+  <script>
+    // GitHub OAuth configuration
+    const CLIENT_ID = "Ov23li5y3RylHXSS7sLD";
+    const REDIRECT_URI = "http://localhost:8000/oauth-callback.html"; // Make sure this matches your registered callback
+    const SCOPE = "read:user user:email"; // You can adjust scopes as needed
+    const OAUTH_AUTHORIZE_URL = "https://github.com/login/oauth/authorize";
+
+    function getGitHubOAuthUrl() {
+      const params = new URLSearchParams({
+        client_id: CLIENT_ID,
+        redirect_uri: REDIRECT_URI,
+        scope: SCOPE,
+        allow_signup: "true"
+      });
+      return `${OAUTH_AUTHORIZE_URL}?${params.toString()}`;
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      window.location.href = getGitHubOAuthUrl();
+    });
+  </script>
+</body>
+</html>
