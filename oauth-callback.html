@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GitHub OAuth Callback</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { background: #f6f8fa; font-family: Arial, sans-serif; }
+    .container {
+      max-width: 420px;
+      margin: 10vh auto;
+      padding: 2em;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      text-align: center;
+    }
+    h1 { font-size: 1.3em; margin-bottom: 1.2em; color: #333; }
+    .message { margin-top: 1em; color: #222; }
+    .error { color: #c00; }
+    textarea {
+      width: 100%; min-height: 80px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-top: 1em;
+      font-size: 1em;
+      padding: 0.5em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GitHub OAuth Callback</h1>
+    <div class="message" id="message">Exchanging code for access token...</div>
+    <textarea id="tokenBox" readonly style="display:none"></textarea>
+  </div>
+  <script>
+    // WARNING: This demo exchanges the code for an access token from the BROWSER for simplicity.
+    // In production, you MUST do the exchange on a backend server to keep your client secret safe.
+
+    // Your credentials, do NOT expose secret in production!
+    const CLIENT_ID = 'Ov23li5y3RylHXSS7sLD';
+    const CLIENT_SECRET = 'bd48e3f4cb75aec062b37d666231a8e780f9c510';
+
+    // Get ?code=... from the URL
+    function getQueryParam(name) {
+      const url = new URL(window.location);
+      return url.searchParams.get(name);
+    }
+
+    async function exchangeCodeForToken(code) {
+      const url = 'https://github.com/login/oauth/access_token';
+      const params = {
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        code: code,
+      };
+      const headers = {
+        Accept: 'application/json'
+      };
+
+      try {
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: new URLSearchParams(params)
+        });
+        const data = await resp.json();
+        if (data.access_token) {
+          return data.access_token;
+        }
+        throw new Error(data.error_description || 'Failed to obtain access token.');
+      } catch (e) {
+        throw e;
+      }
+    }
+
+    async function main() {
+      const message = document.getElementById('message');
+      const tokenBox = document.getElementById('tokenBox');
+      const code = getQueryParam('code');
+
+      if (!code) {
+        message.className = 'message error';
+        message.textContent = 'No code found in URL. Please login via GitHub first.';
+        return;
+      }
+
+      try {
+        const token = await exchangeCodeForToken(code);
+        message.textContent = 'Access token received! You can use this token for GitHub API requests:';
+        tokenBox.style.display = 'block';
+        tokenBox.value = token;
+      } catch (e) {
+        message.className = 'message error';
+        message.textContent = 'Error exchanging code for token: ' + e.message;
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
